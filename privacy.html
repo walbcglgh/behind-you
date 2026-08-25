@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>隱私政策 — Horror Survey Game</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: "Microsoft JhengHei", "PingFang TC", -apple-system, sans-serif;
+  background: #f5f5f0;
+  color: #333;
+  line-height: 1.8;
+  padding: 40px 20px;
+}
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  padding: 40px 36px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.back-link {
+  display: inline-block;
+  margin-bottom: 24px;
+  color: #666;
+  text-decoration: none;
+  font-size: 14px;
+}
+.back-link:hover { color: #ff4444; }
+h1 {
+  font-size: 26px;
+  margin-bottom: 8px;
+  color: #222;
+}
+.subtitle {
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eee;
+}
+h2 {
+  font-size: 18px;
+  margin: 28px 0 12px;
+  color: #333;
+}
+p, li {
+  font-size: 15px;
+  color: #555;
+  margin-bottom: 12px;
+}
+ul {
+  padding-left: 24px;
+  margin-bottom: 16px;
+}
+li { margin-bottom: 8px; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+}
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px 12px;
+  text-align: left;
+}
+th {
+  background: #f8f8f8;
+  font-weight: 600;
+  color: #444;
+}
+.highlight {
+  background: #f0f8ff;
+  border-left: 3px solid #4488ff;
+  padding: 12px 16px;
+  margin: 16px 0;
+  font-size: 14px;
+  color: #446;
+}
+.footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+  font-size: 12px;
+  color: #999;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="index.html" class="back-link">← 返回警告頁</a>
+  <h1>隱私政策</h1>
+  <div class="subtitle">最後更新日期：2026 年 8 月 25 日</div>
+
+  <h2>一、我們收集什麼資訊</h2>
+  <p>為了提供互動敘事的沉浸感，本服務會在您的瀏覽器端讀取以下<strong>公開資訊</strong>：</p>
+  <table>
+    <tr><th>資訊類型</th><th>來源</th><th>用途</th></tr>
+    <tr><td>IP 位址</td><td>ipapi.co（第三方免費 API）</td><td>顯示推估的城市與 ISP 名稱</td></tr>
+    <tr><td>時區</td><td>Intl.DateTimeFormat API</td><td>敘事中的地理位置提示</td></tr>
+    <tr><td>瀏覽器 / OS / 裝置</td><td>navigator.userAgent</td><td>裝置指紋展示</td></tr>
+    <tr><td>螢幕解析度</td><td>screen.width / screen.height</td><td>硬體資訊展示</td></tr>
+    <tr><td>系統語言</td><td>navigator.language</td><td>語言設定展示</td></tr>
+    <tr><td>遊戲進度</td><td>localStorage</td><td>記錄是否已玩過、答題選擇</td></tr>
+  </table>
+
+  <h2>二、我們不收集什麼</h2>
+  <ul>
+    <li><strong>不收集</strong>您的姓名、電話、Email 或任何可識別個人身份的資訊。</li>
+    <li><strong>不存取</strong>您的相機、麥克風、檔案系統或地理位置 GPS。</li>
+    <li><strong>不上傳</strong>任何資料到本專案的伺服器（本專案無後端伺服器）。</li>
+    <li><strong>不使用</strong>追蹤型 Cookie 或第三方分析工具（如 Google Analytics）。</li>
+  </ul>
+
+  <h2>三、資料儲存位置</h2>
+  <div class="highlight">
+    所有讀取到的資訊僅存在於<strong>您的瀏覽器記憶體與 localStorage 中</strong>，不會傳送至任何外部伺服器。ipapi.co 僅用於查詢 IP 對應的地理位置，查詢過程中您的 IP 會被該服務記錄（這是任何網站存取時都會發生的正常網路行為）。
+  </div>
+
+  <h2>四、第三方服務</h2>
+  <p>本服務使用 <strong>ipapi.co</strong>（免費 IP 地理位置查詢 API）來取得您的推估位置。該服務的隱私政策請參見其官方網站。</p>
+
+  <h2>五、您的權利</h2>
+  <ul>
+    <li>您可以隨時清除瀏覽器的 localStorage 資料，即可刪除所有遊戲進度記錄。</li>
+    <li>您可以隨時關閉網頁，所有記憶體中的資料將立即銷毀。</li>
+    <li>您可以選擇不使用本服務，無需提供任何理由。</li>
+  </ul>
+
+  <h2>六、變更通知</h2>
+  <p>若本隱私政策有任何重大變更，我們將更新本頁面的「最後更新日期」。</p>
+
+  <div class="footer">
+    © 2026 Horror Survey Game · 本作品為虛構創作
+  </div>
+</div>
+</body>
+</html>

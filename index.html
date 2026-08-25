@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>網路安全意識評估 — 進入警告</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: "Microsoft JhengHei", "PingFang TC", -apple-system, sans-serif;
+  background: #1a1a1a;
+  color: #e0e0e0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+.container {
+  max-width: 560px;
+  width: 100%;
+}
+.warning-box {
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 32px 28px;
+  box-shadow: 0 0 40px rgba(255,0,0,0.06);
+}
+.warning-icon {
+  text-align: center;
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+.warning-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  color: #ff4444;
+  margin-bottom: 24px;
+  letter-spacing: 2px;
+}
+.warning-section {
+  margin-bottom: 20px;
+}
+.warning-section h3 {
+  font-size: 15px;
+  color: #ff8888;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.warning-section ul {
+  list-style: none;
+  padding-left: 0;
+}
+.warning-section li {
+  font-size: 14px;
+  color: #bbb;
+  line-height: 1.9;
+  padding-left: 20px;
+  position: relative;
+}
+.warning-section li::before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: #ff4444;
+}
+.important-note {
+  background: #1a0a0a;
+  border-left: 3px solid #ff4444;
+  padding: 14px 16px;
+  margin: 20px 0;
+  font-size: 13px;
+  color: #cc8888;
+  line-height: 1.8;
+}
+.legal-links {
+  text-align: center;
+  margin: 20px 0 16px;
+  font-size: 13px;
+}
+.legal-links a {
+  color: #888;
+  text-decoration: none;
+  margin: 0 10px;
+  transition: color 0.3s;
+}
+.legal-links a:hover {
+  color: #ff6666;
+}
+.age-warning {
+  background: #0a0a0a;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 20px 0;
+  text-align: center;
+  font-size: 13px;
+  color: #999;
+}
+.age-warning strong {
+  color: #ff6666;
+}
+.btn-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+.btn {
+  flex: 1;
+  padding: 14px 20px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  font-family: inherit;
+  transition: all 0.3s ease;
+}
+.btn-agree {
+  background: #ff4444;
+  color: #000;
+}
+.btn-agree:hover {
+  background: #ff6666;
+  box-shadow: 0 0 20px rgba(255,68,68,0.3);
+}
+.btn-leave {
+  background: #222;
+  color: #888;
+  border: 1px solid #333;
+}
+.btn-leave:hover {
+  background: #333;
+  color: #aaa;
+}
+.footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 12px;
+  color: #555;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="warning-box">
+    <div class="warning-icon">⚠️</div>
+    <div class="warning-title">進入前請閱讀</div>
+
+    <div class="warning-section">
+      <h3>本網頁包含以下內容</h3>
+      <ul>
+        <li>模擬系統入侵的視覺效果（閃光、畫面抖動、高對比文字）</li>
+        <li>裝置資訊展示（IP 位址、時區、瀏覽器、螢幕解析度等公開資訊）</li>
+        <li>音效與震動效果</li>
+        <li>互動式恐怖敘事與心理壓迫元素</li>
+      </ul>
+    </div>
+
+    <div class="important-note">
+      <strong>重要說明：</strong><br>
+      所有「駭入」效果均為前端技術演示，不會存取您的私人檔案、相機或麥克風。裝置資訊由瀏覽器自願公開，不會傳送至任何第三方伺服器。本作品為虛構互動敘事，純屬娛樂目的。
+    </div>
+
+    <div class="age-warning">
+      <strong>不建議以下族群遊玩：</strong><br>
+      光敏性癲癇患者、心臟病患者、焦慮症患者、12 歲以下兒童
+    </div>
+
+    <div class="legal-links">
+      <a href="tos.html">服務條款</a> ·
+      <a href="privacy.html">隱私政策</a> ·
+      <a href="disclaimer.html">免責聲明</a>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-leave" onclick="window.close(); location.href='about:blank';">離開網頁</button>
+      <button class="btn btn-agree" onclick="enterGame()">我已閱讀並同意</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    © 2026 Horror Survey Game · 本作品為虛構創作
+  </div>
+</div>
+
+<script>
+function enterGame() {
+  localStorage.setItem('hs_warning_accepted', 'true');
+  localStorage.setItem('hs_accept_time', new Date().toISOString());
+  window.location.href = 'game.html';
+}
+
+// 如果已經同意過，直接進遊戲
+if (localStorage.getItem('hs_warning_accepted') === 'true') {
+  // 保留警告頁，讓使用者自己點
+}
+</script>
+</body>
+</html>

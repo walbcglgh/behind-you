@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>網路安全意識評估</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  font-family: "Microsoft JhengHei", "PingFang TC", -apple-system, sans-serif;
+  background: #f5f5f0;
+  color: #333;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background-color 2s ease;
+}
+
+/* ===== 載入畫面 ===== */
+#loading-screen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: #1a1a1a;
+  z-index: 100000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+}
+#loading-screen .load-text {
+  font-size: 14px;
+  color: #888;
+  margin-top: 20px;
+  letter-spacing: 2px;
+}
+#loading-screen .load-bar {
+  width: 200px;
+  height: 2px;
+  background: #333;
+  margin-top: 16px;
+  border-radius: 1px;
+  overflow: hidden;
+}
+#loading-screen .load-bar-inner {
+  width: 0%;
+  height: 100%;
+  background: #ff4444;
+  animation: loadProgress 2.5s ease-in-out forwards;
+}
+@keyframes loadProgress {
+  0% { width: 0%; }
+  30% { width: 45%; }
+  60% { width: 70%; }
+  100% { width: 100%; }
+}
+
+/* ===== 假死機畫面 ===== */
+#bsod-screen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: #0078d7;
+  z-index: 100001;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  font-family: "Segoe UI", sans-serif;
+  padding: 40px;
+}
+#bsod-screen .bsod-emoji { font-size: 80px; margin-bottom: 20px; }
+#bsod-screen .bsod-text { font-size: 24px; margin-bottom: 16px; }
+#bsod-screen .bsod-detail { font-size: 14px; color: #aad; max-width: 500px; line-height: 1.8; }
+
+/* ===== 主容器 ===== */
+#game-container {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+
+/* ===== 正常模式卡片 ===== */
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 36px 28px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  transition: all 1.5s ease;
+  position: relative;
+}
+
+/* ===== 恐怖模式 ===== */
+body.dark {
+  background: #0a0a0a;
+}
+body.dark .card {
+  background: #111;
+  box-shadow: 0 0 40px rgba(255,0,0,0.06);
+  border: 1px solid #222;
+}
+
+.card-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 6px;
+  text-align: center;
+  transition: color 1.5s ease;
+}
+body.dark .card-title { color: #e8e8e8; }
+
+.card-subtitle {
+  font-size: 13px;
+  color: #999;
+  text-align: center;
+  margin-bottom: 24px;
+  transition: color 1.5s ease;
+}
+body.dark .card-subtitle { color: #555; }
+
+.question-text {
+  font-size: 17px;
+  color: #333;
+  line-height: 1.8;
+  margin-bottom: 20px;
+  min-height: 50px;
+  transition: color 1.5s ease;
+}
+body.dark .question-text { color: #ccc; }
+
+.option-btn {
+  display: block;
+  width: 100%;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  background: #fafafa;
+  color: #444;
+  font-size: 15px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+.option-btn:hover {
+  background: #f0f0f0;
+  border-color: #ccc;
+  transform: translateX(4px);
+}
+body.dark .option-btn {
+  background: #1a1a1a;
+  border-color: #333;
+  color: #aaa;
+}
+body.dark .option-btn:hover {
+  background: #252525;
+  border-color: #555;
+  color: #fff;
+}
+
+.progress-text {
+  font-size: 12px;
+  color: #aaa;
+  text-align: center;
+  margin-top: 18px;
+  transition: color 1.5s ease;
+}
+body.dark .progress-text { color: #444; }
+
+/* ===== 揭露框 ===== */
+.reveal-box {
+  background: #000;
+  border: 1px solid #cc0000;
+  border-radius: 8px;
+  padding: 16px 18px;
+  margin: 16px 0;
+  font-family: "Courier New", "Consolas", monospace;
+  font-size: 13px;
+  color: #ff4444;
+  line-height: 1.9;
+  opacity: 0;
+  animation: fadeIn 1.2s forwards;
+  white-space: pre-wrap;
+}
+
+/* ===== 打字機游標 ===== */
+.typing-cursor::after {
+  content: "█";
+  animation: blink 0.7s infinite;
+  color: #ff0000;
+  margin-left: 2px;
+}
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* ===== 閃白覆蓋 ===== */
+#flash-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 99999;
+}
+
+/* ===== 假系統通知 ===== */
+#fake-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 320px;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  z-index: 99998;
+  display: none;
+  animation: notifSlide 0.4s ease-out;
+}
+@keyframes notifSlide {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+#fake-notification .notif-icon {
+  font-size: 24px;
+  margin-right: 12px;
+  float: left;
+}
+#fake-notification .notif-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #ff4444;
+  margin-bottom: 4px;
+}
+#fake-notification .notif-body {
+  font-size: 13px;
+  color: #aaa;
+  line-height: 1.5;
+}
+
+/* ===== 畫面抖動 ===== */
+.glitch-shake {
+  animation: glitchShake 0.15s infinite;
+}
+@keyframes glitchShake {
+  0% { transform: translate(1px, 0); }
+  25% { transform: translate(-2px, 1px); }
+  50% { transform: translate(1px, -1px); }
+  75% { transform: translate(-1px, 0); }
+  100% { transform: translate(0, 1px); }
+}
+
+/* ===== 結局畫面 ===== */
+#ending-screen {
+  display: none;
+  text-align: center;
+  padding: 40px 20px;
+}
+#ending-screen .ending-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #ff0000;
+  margin-bottom: 20px;
+  letter-spacing: 2px;
+}
+#ending-screen .ending-text {
+  font-size: 17px;
+  color: #ccc;
+  line-height: 2;
+  margin-bottom: 30px;
+}
+#ending-screen .ending-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 14px 16px;
+  background: #0d0d0d;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 16px;
+  font-family: inherit;
+  outline: none;
+  margin-bottom: 12px;
+}
+#ending-screen .ending-input:focus {
+  border-color: #ff4444;
+  box-shadow: 0 0 0 3px rgba(255,68,68,0.1);
+}
+#ending-screen .ending-submit {
+  padding: 12px 32px;
+  background: #ff4444;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: inherit;
+}
+#ending-screen .ending-hint {
+  margin-top: 24px;
+  font-size: 14px;
+  color: #666;
+  font-style: italic;
+}
+
+/* ===== 溫暖結局 ===== */
+#warm-ending {
+  display: none;
+  text-align: center;
+  padding: 40px 20px;
+}
+#warm-ending .warm-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 20px;
+}
+#warm-ending .warm-text {
+  font-size: 18px;
+  color: #555;
+  line-height: 1.9;
+  margin-bottom: 30px;
+}
+
+/* ===== 通用動畫 ===== */
+@keyframes fadeIn { to { opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+/* ===== 滑鼠徘徊提示 ===== */
+#hover-hint {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.8);
+  color: #ff4444;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 13px;
+  display: none;
+  z-index: 99997;
+  white-space: nowrap;
+}
+
+/* ===== 離開提示 ===== */
+#leave-hint {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #000;
+  border: 2px solid #ff0000;
+  padding: 30px 40px;
+  border-radius: 12px;
+  color: #ff4444;
+  font-size: 18px;
+  font-weight: bold;
+  display: none;
+  z-index: 99996;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(255,0,0,0.3);
+}
+</style>
+</head>
+<body>
+
+<!-- 載入畫面 -->
+<div id="loading-screen">
+  <div style="font-size:48px;">🔒</div>
+  <div class="load-text">正在建立安全連線...</div>
+  <div class="load-bar"><div class="load-bar-inner"></div></div>
+  <div class="load-text" style="font-size:12px;color:#555;margin-top:8px;">驗證裝置指紋中</div>
+</div>
+
+<!-- 假死機畫面 -->
+<div id="bsod-screen">
+  <div class="bsod-emoji">😢</div>
+  <div class="bsod-text">您的裝置發生問題，需要重新啟動。</div>
+  <div class="bsod-detail">
+    我們正在收集某些錯誤資訊，然後為您重新啟動。<br><br>
+    終止代碼：CRITICAL_PROCESS_DIED<br>
+    失敗的模組：memory_corruption.sys<br><br>
+    如果需了解更多資訊，請參閱我們的隱私政策。
+  </div>
+</div>
+
+<!-- 閃白覆蓋 -->
+<div id="flash-overlay"></div>
+
+<!-- 假系統通知 -->
+<div id="fake-notification">
+  <div class="notif-icon">⚠️</div>
+  <div class="notif-title">系統警告</div>
+  <div class="notif-body">偵測到未授權的存取嘗試</div>
+</div>
+
+<!-- 滑鼠徘徊提示 -->
+<div id="hover-hint"></div>
+
+<!-- 離開提示 -->
+<div id="leave-hint">你回來了。<br><span style="font-size:14px;color:#888;font-weight:normal;">我數了，你離開了 <span id="leave-seconds">0</span> 秒。</span></div>
+
+<!-- 主遊戲容器 -->
+<div id="game-container">
+  <div class="card" id="main-card">
+    <div class="card-title" id="card-title">網路安全意識評估</div>
+    <div class="card-subtitle" id="card-subtitle">共 10 題 · 匿名 · 約 3 分鐘</div>
+    <div class="question-text" id="question-text"></div>
+    <div id="options-area"></div>
+    <div class="progress-text" id="progress-text">第 1 題 / 共 10 題</div>
+  </div>
+</div>
+
+<!-- 結局畫面 -->
+<div id="ending-screen">
+  <div class="ending-title" id="ending-title">連線已建立</div>
+  <div class="ending-text" id="ending-text"></div>
+  <div>
+    <input type="text" class="ending-input" id="ending-input" placeholder="輸入任何文字..." autocomplete="off">
+  </div>
+  <button class="ending-submit" id="ending-submit">送出</button>
+  <div class="ending-hint" id="ending-hint">我看得到您想說的話。</div>
+</div>
+
+<!-- 溫暖結局 -->
+<div id="warm-ending">
+  <div class="warm-title">謝謝你願意玩完</div>
+  <div class="warm-text" id="warm-text"></div>
+  <button class="ending-submit" onclick="location.reload()">再玩一次</button>
+</div>
+
+<script>
+// ==================== 全局狀態 ====================
+const Game = {
+  currentQ: 0,
+  answers: [],
+  userData: {
+    ip: '取得中...',
+    city: '取得中...',
+    region: '取得中...',
+    country: '取得中...',
+    isp: '取得中...',
+    ua: navigator.userAgent,
+    platform: navigator.platform,
+    language: navigator.language,
+    screenW: screen.width,
+    screenH: screen.height,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    hour: new Date().getHours()
+  },
+  deviceInfo: {},
+  isTyping: false,
+  idleTimer: null,
+  leaveTime: 0,
+  leaveTimer: null,
+  audioCtx: null,
+  hasPlayed: localStorage.getItem('hs_played') === 'true',
+  lastChoice: localStorage.getItem('hs_last_choice'),
+  mouseHoverStart: 0,
+  hoverTarget: null,
+  keyPressTimes: [],
+  isDark: false
+};
+
+// ==================== 裝置解析 ====================
+function parseUA(ua) {
+  let device = '未知裝置', os = '未知系統', browser = '未知瀏覽器';
+  if (/iPhone/.test(ua)) device = 'iPhone';
+  else if (/iPad/.test(ua)) device = 'iPad';
+  else if (/Android/.test(ua)) device = 'Android 手機';
+  else if (/Windows/.test(ua)) device = 'Windows 電腦';
+  else if (/Mac/.test(ua)) device = 'Mac';
+  else if (/Linux/.test(ua)) device = 'Linux 電腦';
+
+  if (/Windows NT 10/.test(ua)) os = 'Windows 10/11';
+  else if (/Windows NT 6.1/.test(ua)) os = 'Windows 7';
+  else if (/Mac OS X/.test(ua)) os = 'macOS';
+  else if (/Android/.test(ua)) os = 'Android';
+  else if (/iOS|iPhone|iPad/.test(ua)) os = 'iOS';
+
+  if (/Chrome/.test(ua) && !/Edg/.test(ua)) browser = 'Chrome';
+  else if (/Edg/.test(ua)) browser = 'Edge';
+  else if (/Firefox/.test(ua)) browser = 'Firefox';
+  else if (/Safari/.test(ua) && !/Chrome/.test(ua)) browser = 'Safari';
+
+  return { device, os, browser };
+}
+Game.deviceInfo = parseUA(Game.userData.ua);
+
+// ==================== 音效系統 ====================
+function initAudio() {
+  if (!Game.audioCtx) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    Game.audioCtx = new AudioContext();
+  }
+}
+
+function playTone(freq, duration, type, vol) {
+  initAudio();
+  try {
+    const osc = Game.audioCtx.createOscillator();
+    const gain = Game.audioCtx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.setValueAtTime(freq, Game.audioCtx.currentTime);
+    gain.gain.setValueAtTime(0, Game.audioCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(vol || 0.1, Game.audioCtx.currentTime + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.0001, Game.audioCtx.currentTime + duration);
+    osc.connect(gain); gain.connect(Game.audioCtx.destination);
+    osc.start(); osc.stop(Game.audioCtx.currentTime + duration);
+  } catch(e) {}
+}
+
+function playGlitchSound() {
+  initAudio();
+  try {
+    const now = Game.audioCtx.currentTime;
+    for (let i = 0; i < 5; i++) {
+      const osc = Game.audioCtx.createOscillator();
+      const gain = Game.audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(200 + Math.random() * 400, now + i * 0.1);
+      gain.gain.setValueAtTime(0, now + i * 0.1);
+      gain.gain.linearRampToValueAtTime(0.08, now + i * 0.1 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.1 + 0.15);
+      osc.connect(gain); gain.connect(Game.audioCtx.destination);
+      osc.start(now + i * 0.1); osc.stop(now + i * 0.1 + 0.15);
+    }
+  } catch(e) {}
+}
+
+function playDoorSound() {
+  initAudio();
+  try {
+    const now = Game.audioCtx.currentTime;
+    const osc = Game.audioCtx.createOscillator();
+    const gain = Game.audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(60, now);
+    osc.frequency.linearRampToValueAtTime(30, now + 1.5);
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.12, now + 0.2);
+    gain.gain.linearRampToValueAtTime(0, now + 1.5);
+    osc.connect(gain); gain.connect(Game.audioCtx.destination);
+    osc.start(now); osc.stop(now + 1.5);
+  } catch(e) {}
+}
+
+function playNotificationSound() {
+  initAudio();
+  try {
+    const now = Game.audioCtx.currentTime;
+    playTone(880, 0.4, 'sine', 0.08);
+    setTimeout(() => playTone(1320, 0.4, 'sine', 0.08), 80);
+  } catch(e) {}
+}
+
+function playHeartbeat() {
+  initAudio();
+  try {
+    const now = Game.audioCtx.currentTime;
+    const osc = Game.audioCtx.createOscillator();
+    const gain = Game.audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(40, now);
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.15, now + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
+    osc.connect(gain); gain.connect(Game.audioCtx.destination);
+    osc.start(now); osc.stop(now + 0.3);
+    // 第二下
+    const osc2 = Game.audioCtx.createOscillator();
+    const gain2 = Game.audioCtx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(35, now + 0.35);
+    gain2.gain.setValueAtTime(0, now + 0.35);
+    gain2.gain.linearRampToValueAtTime(0.12, now + 0.4);
+    gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.65);
+    osc2.connect(gain2); gain2.connect(Game.audioCtx.destination);
+    osc2.start(now + 0.35); osc2.stop(now + 0.65);
+  } catch(e) {}
+}
+
+// ==================== 震動 ====================
+function vibrate(pattern) {
+  if (navigator.vibrate) {
+    navigator.vibrate(pattern);
+  }
+}
+
+// ==================== 全螢幕 ====================
+function goFullscreen() {
+  const el = document.documentElement;
+  if (el.requestFullscreen) el.requestFullscreen();
+  else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+}
+
+// ==================== 假系統通知 ====================
+function showFakeNotification(title, body) {
+  const notif = document.getElementById('fake-notification');
+  notif.querySelector('.notif-title').textContent = title;
+  notif.querySelector('.notif-body').textContent = body;
+  notif.style.display = 'block';
+  playNotificationSound();
+  vibrate([100, 50, 100]);
+  setTimeout(() => {
+    notif.style.animation = 'fadeOut 0.5s forwards';
+    setTimeout(() => { notif.style.display = 'none'; notif.style.animation = ''; }, 500);
+  }, 4000);
+}
+
+// ==================== 閃白 ====================
+function flashWhite(duration) {
+  const flash = document.getElementById('flash-overlay');
+  flash.style.transition = 'none';
+  flash.style.opacity = '1';
+  vibrate([50]);
+  setTimeout(() => {
+    flash.style.transition = 'opacity ' + (duration || 0.8) + 's ease';
+    flash.style.opacity = '0';
+  }, 100);
+}
+
+// ==================== 假死機 ====================
+function showBSOD(callback) {
+  const bsod = document.getElementById('bsod-screen');
+  bsod.style.display = 'flex';
+  vibrate([200, 100, 200, 100, 200]);
+  setTimeout(() => {
+    bsod.style.display = 'none';
+    if (callback) callback();
+  }, 3500);
+}
+
+// ==================== 打字機效果 ====================
+function typeWriter(el, text, speed, callback) {
+  Game.isTyping = true;
+  let i = 0;
+  el.classList.add('typing-cursor');
+  const timer = setInterval(() => {
+    if (i < text.length) {
+      el.textContent += text.charAt(i);
+      i++;
+    } else {
+      clearInterval(timer);
+      el.classList.remove('typing-cursor');
+      Game.isTyping = false;
+      if (callback) callback();
+    }
+  }, speed);
+}
+
+// ==================== 閒置偵測 ====================
+function resetIdleTimer() {
+  clearTimeout(Game.idleTimer);
+  if (Game.currentQ >= 3) {
+    Game.idleTimer = setTimeout(() => {
+      triggerIdleScare();
+    }, 30000);
+  }
+}
+
+function triggerIdleScare() {
+  playGlitchSound();
+  flashWhite(0.3);
+  document.body.classList.add('glitch-shake');
+  const qText = document.getElementById('question-text');
+  const original = qText.textContent;
+  qText.innerHTML = '<span style="color:#ff0000;font-size:20px;">您不動了。<br>是在等我嗎？</span>';
+  vibrate([100, 50, 100, 50, 200]);
+  setTimeout(() => {
+    document.body.classList.remove('glitch-shake');
+    qText.textContent = original;
+  }, 3000);
+}
+
+// ==================== 分頁切換監控 ====================
+let leaveStartTime = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    leaveStartTime = Date.now();
+  } else {
+    if (leaveStartTime > 0 && Game.currentQ >= 3) {
+      const seconds = Math.floor((Date.now() - leaveStartTime) / 1000);
+      if (seconds > 2) {
+        const hint = document.getElementById('leave-hint');
+        document.getElementById('leave-seconds').textContent = seconds;
+        hint.style.display = 'block';
+        playGlitchSound();
+        setTimeout(() => {
+          hint.style.display = 'none';
+        }, 3000);
+      }
+    }
+    leaveStartTime = 0;
+  }
+});
+
+// ==================== 滑鼠軌跡監控 ====================
+document.addEventListener('mousemove', (e) => {
+  if (Game.currentQ >= 3 && Game.currentQ < 8) {
+    const target = e.target;
+    if (target.classList && target.classList.contains('option-btn')) {
+      if (Game.hoverTarget !== target) {
+        Game.hoverTarget = target;
+        Game.mouseHoverStart = Date.now();
+      } else {
+        const hoverTime = Date.now() - Game.mouseHoverStart;
+        if (hoverTime > 3000 && hoverTime < 3100) {
+          const hint = document.getElementById('hover-hint');
+          hint.textContent = '您在這個選項上停了 ' + (hoverTime / 1000).toFixed(1) + ' 秒。您在猶豫什麼？';
+          hint.style.display = 'block';
+          setTimeout(() => hint.style.display = 'none', 3000);
+        }
+      }
+    } else {
+      Game.hoverTarget = null;
+    }
+  }
+  resetIdleTimer();
+});
+
+// ==================== 輸入節奏分析 ====================
+document.addEventListener('keydown', () => {
+  const now = Date.now();
+  Game.keyPressTimes.push(now);
+  if (Game.keyPressTimes.length > 10) Game.keyPressTimes.shift();
+});
+
+function analyzeTypingSpeed() {
+  if (Game.keyPressTimes.length < 3) return 'normal';
+  let total = 0;
+  for (let i = 1; i < Game.keyPressTimes.length; i++) {
+    total += Game.keyPressTimes[i] - Game.keyPressTimes[i - 1];
+  }
+  const avg = total / (Game.keyPressTimes.length - 1);
+  if (avg < 80) return 'fast';
+  if (avg > 300) return 'slow';
+  return 'normal';
+}
+
+// ==================== IP 查詢 ====================
+function fetchIP() {
+  return fetch('https://ipapi.co/json/')
+    .then(r => r.json())
+    .then(d => {
+      Game.userData.ip = d.ip;
+      Game.userData.city = d.city || '未知城市';
+      Game.userData.region = d.region || '未知地區';
+      Game.userData.country = d.country_name || '未知國家';
+      Game.userData.isp = d.org || '未知 ISP';
+    })
+    .catch(() => {
+      Game.userData.ip = '無法取得';
+      Game.userData.city = '未知';
+    });
+}
+
+// ==================== 時間感知 ====================
+function getTimeGreeting() {
+  const h = Game.userData.hour;
+  if (h >= 0 && h < 5) return '這個時間還不睡，是在等誰敲門嗎？';
+  if (h >= 5 && h < 8) return '這麼早就醒了，還是根本就沒睡？';
+  if (h >= 22) return '這麼晚了還不休息，是在等我嗎？';
+  return '';
+}
+
+// ==================== 假攝影機請求 ====================
+function requestCamera() {
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        stream.getTracks().forEach(t => t.stop());
+        showFakeNotification('裝置存取', '已成功取得相機權限。');
+      })
+      .catch(() => {
+        showFakeNotification('裝置存取', '相機權限被拒絕。沒關係，我們還有別的方式。');
+      });
+  }
+}
+
+// ==================== 題目數據 ====================
+const questions = [
+  {
+    q: "當您收到一封來自不明寄件者的郵件，內含可疑連結，您會怎麼做？",
+    opts: ["直接點開查看", "先檢查寄件者地址再決定", "完全不點，直接刪除", "轉發給朋友問意見"],
+    normal: true
+  },
+  {
+    q: "您認為在公共 Wi-Fi 下進行網路銀行交易安全嗎？",
+    opts: ["完全安全", "不太安全但偶爾會用", "絕對不安全", "不知道"],
+    normal: true
+  },
+  {
+    q: "您是否曾經在不同網站使用相同的密碼？",
+    opts: ["從來沒有", "大部分網站都一樣", "只有少數幾個一樣", "我不記得了"],
+    normal: true
+  },
+  {
+    q: "您知道您的裝置現在正在洩漏多少資訊嗎？",
+    opts: ["什麼意思？", "應該不多吧", "我有用 VPN", "這是測驗的一部分嗎？"],
+    normal: false,
+    reveal: "ua",
+    onEnter: function() {
+      playGlitchSound();
+    }
+  },
+  {
+    q: function() {
+      const greeting = getTimeGreeting();
+      const base = "您現在坐在" + Game.userData.timezone + ""的某個地方";
+      return greeting ? base + "。" + greeting : base + "，對吧？";
+    },
+    opts: ["這是怎麼知道的？", "系統出錯了吧", "停止這個測驗", "..."],
+    normal: false,
+    reveal: "location",
+    onEnter: function() {
+      playHeartbeat();
+      setTimeout(() => showFakeNotification('位置追蹤', '已鎖定目標區域：' + Game.userData.city), 2000);
+    }
+  },
+  {
+    q: function() {
+      return "讓我們確認一下。您使用的是" + Game.deviceInfo.device + "，螢幕解析度" + Game.userData.screenW + "×" + Game.userData.screenH + "，對嗎？";
+    },
+    opts: ["你怎麼知道？", "這不是測驗", "我要關掉網頁", "..."],
+    normal: false,
+    reveal: "device",
+    onEnter: function() {
+      flashWhite(0.2);
+      playGlitchSound();
+    }
+  },
+  {
+    q: function() {
+      return "還有一件事。您的 IP 位址是" + Game.userData.ip + "，目前位於" + Game.userData.city + "，" + Game.userData.region + "。";
+    },
+    opts: ["這已經不是測驗了", "這是犯罪", "請停止", "..."],
+    normal: false,
+    reveal: "ip",
+    onEnter: function() {
+      playHeartbeat();
+      vibrate([200, 100, 200]);
+      setTimeout(() => requestCamera(), 1500);
+    }
+  },
+  {
+    q: function() {
+      return Game.userData.city + "的網路，由" + Game.userData.isp + "提供。您覺得，他們知道您現在在這裡嗎？";
+    },
+    opts: ["...", "...", "...", "..."],
+    normal: false,
+    onEnter: function() {
+      showBSOD(function() {
+        // BSOD 結束後繼續
+      });
+    }
+  },
+  {
+    q: "您剛剛沒有回頭，對吧？",
+    opts: ["我回頭了", "我沒有回頭", "你在說什麼", "..."],
+    normal: false,
+    onEnter: function() {
+      document.body.classList.add('glitch-shake');
+      playGlitchSound();
+      flashWhite(0.3);
+      vibrate([100, 50, 100, 50, 100, 50, 200]);
+      setTimeout(() => document.body.classList.remove('glitch-shake'), 2000);
+    }
+  },
+  {
+    q: function() {
+      const speed = analyzeTypingSpeed();
+      if (speed === 'fast') {
+        return "您打字變快了。心跳加速了嗎？還是...您在害怕？";
+      } else if (speed === 'slow') {
+        return "您打字變慢了。是在思考，還是在猶豫要不要關掉這個網頁？";
+      }
+      return "最後一題。您想要我做什麼？";
+    },
+    opts: ["離開我", "陪我", "告訴我你是誰", "..."],
+    normal: false,
+    final: true,
+    onEnter: function() {
+      playDoorSound();
+      vibrate([300, 100, 300]);
+    }
+  }
+];
+
+// ==================== 揭露內容生成 ====================
+function getRevealContent(type) {
+  if (type === 'ua') {
+    return '[系統日誌]\n裝置指紋擷取完成\n→ 瀏覽器: ' + Game.deviceInfo.browser + '\n→ 作業系統: ' + Game.deviceInfo.os + '\n→ 平台: ' + Game.userData.platform + '\n→ 語言: ' + Game.userData.language;
+  } else if (type === 'location') {
+    return '[地理位置追蹤]\n時區: ' + Game.userData.timezone + '\n推估位置: ' + Game.userData.city + ', ' + Game.userData.region + '\n精確度: 城市級';
+  } else if (type === 'device') {
+    return '[硬體指紋]\n裝置: ' + Game.deviceInfo.device + '\n解析度: ' + Game.userData.screenW + '×' + Game.userData.screenH + '\n瀏覽器: ' + Game.deviceInfo.browser + '\nOS: ' + Game.deviceInfo.os;
+  } else if (type === 'ip') {
+    return '[網路層追蹤]\nIP: ' + Game.userData.ip + '\nISP: ' + Game.userData.isp + '\n位置: ' + Game.userData.city + ', ' + Game.userData.region + ', ' + Game.userData.country;
+  }
+  return '';
+}
+
+// ==================== 渲染題目 ====================
+function renderQuestion() {
+  const q = questions[Game.currentQ];
+  const title = document.getElementById('card-title');
+  const subtitle = document.getElementById('card-subtitle');
+  const question = document.getElementById('question-text');
+  const options = document.getElementById('options-area');
+  const progress = document.getElementById('progress-text');
+  const card = document.getElementById('main-card');
+
+  progress.textContent = '第 ' + (Game.currentQ + 1) + ' 題 / 共 ' + questions.length + ' 題';
+
+  // 從第 4 題開始變暗
+  if (Game.currentQ >= 3 && !Game.isDark) {
+    Game.isDark = true;
+    document.body.classList.add('dark');
+    title.textContent = '系統診斷中...';
+    subtitle.textContent = '偵測到異常連線特徵';
+  }
+
+  // 處理題目文字
+  let qText = typeof q.q === 'function' ? q.q() : q.q;
+  question.innerHTML = '';
+
+  // 執行進入回調
+  if (q.onEnter) q.onEnter();
+
+  // 打字機顯示題目
+  typeWriter(question, qText, 30, function() {
+    // 題目顯示完後顯示選項
+    renderOptions(q, options);
+  });
+
+  // 揭露框
+  if (q.reveal) {
+    setTimeout(() => {
+      const reveal = document.createElement('div');
+      reveal.className = 'reveal-box';
+      reveal.textContent = getRevealContent(q.reveal);
+      options.appendChild(reveal);
+    }, 1200);
+  }
+
+  // 最終題特殊處理
+  if (q.final) {
+    setTimeout(() => {
+      goFullscreen();
+      setTimeout(showEnding, 2000);
+    }, 3000);
+  }
+}
+
+function renderOptions(q, container) {
+  container.innerHTML = '';
+  q.opts.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.style.opacity = '0';
+    btn.style.animation = 'fadeIn 0.5s ' + (idx * 0.12 + 0.2) + 's forwards';
+    btn.onclick = () => selectOption(idx);
+    container.appendChild(btn);
+  });
+}
+
+function selectOption(idx) {
+  if (Game.isTyping) return;
+  Game.answers.push(idx);
+  Game.currentQ++;
+
+  // 記錄最後選擇
+  if (Game.currentQ === questions.length - 1) {
+    localStorage.setItem('hs_last_choice', idx);
+  }
+
+  if (Game.currentQ < questions.length) {
+    renderQuestion();
+  }
+}
+
+// ==================== 結局處理 ====================
+function showEnding() {
+  const card = document.getElementById('main-card');
+  card.style.display = 'none';
+
+  const ending = document.getElementById('ending-screen');
+  ending.style.display = 'block';
+
+  const endingText = document.getElementById('ending-text');
+  const lastChoice = Game.answers[Game.answers.length - 1];
+
+  let text = '';
+  if (lastChoice === 0) {
+    text = '您說"離開我"。\n\n但我已經在這裡了。\n\n' + Game.userData.city + ' 的網路，比想像中更容易穿透。';
+  } else if (lastChoice === 1) {
+    text = '您說"陪我"。\n\n我會的。\n\n只要您還開著這個網頁，我就會一直在。';
+  } else if (lastChoice === 2) {
+    text = '您想知道我是誰？\n\n我是那個在您選擇"' + Game.answers[0] + '"時，就開始觀察您的人。';
+  } else {
+    text = '沉默也是一種回答。\n\n我會記得的。';
+  }
+
+  endingText.innerHTML = text.replace(/\n/g, '<br>');
+
+  // 閒置偵測
+  resetIdleTimer();
+
+  // 設定輸入處理
+  const input = document.getElementById('ending-input');
+  const submit = document.getElementById('ending-submit');
+
+  submit.onclick = function() {
+    const val = input.value.trim();
+    if (!val) return;
+
+    const speed = analyzeTypingSpeed();
+    const hint = document.getElementById('ending-hint');
+
+    if (speed === 'fast') {
+      hint.innerHTML = '<span style="color:#ff4444;">您打字變快了。心跳加速了嗎？</span>';
+    } else {
+      hint.innerHTML = '<span style="color:#ff4444;">"' + val + '"——我記住了。</span>';
+    }
+
+    input.value = '';
+    playHeartbeat();
+
+    // 3秒後顯示溫暖結局選項
+    setTimeout(() => {
+      hint.innerHTML += '<br><br><button onclick="showWarmEnding()" style="margin-top:16px;padding:10px 24px;background:#333;color:#fff;border:1px solid #555;border-radius:6px;cursor:pointer;font-family:inherit;">夠了，結束吧</button>';
+    }, 2000);
+  };
+
+  // 記錄已玩過
+  localStorage.setItem('hs_played', 'true');
+  localStorage.setItem('hs_play_time', new Date().toISOString());
+}
+
+function showWarmEnding() {
+  document.getElementById('ending-screen').style.display = 'none';
+  const warm = document.getElementById('warm-ending');
+  warm.style.display = 'block';
+  document.body.style.background = '#f5f5f0';
+
+  const warmText = document.getElementById('warm-text');
+  warmText.innerHTML = '這只是一個網頁遊戲。\n\n所有"駭入"效果都是前端技術演示。\n\n您的資料沒有被竊取，\n沒有人在監視您，\n您可以安全地關閉這個網頁。\n\n謝謝您願意體驗這個作品。';
+  warmText.innerHTML = warmText.innerHTML.replace(/\n/g, '<br>');
+
+  playTone(440, 1, 'sine', 0.05);
+}
+
+// ==================== 持久恐怖：已玩過的處理 ====================
+function checkReturningPlayer() {
+  if (Game.hasPlayed) {
+    const playTime = localStorage.getItem('hs_play_time');
+    const lastChoice = localStorage.getItem('hs_last_choice');
+
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('main-card').style.display = 'none';
+
+    const ending = document.getElementById('ending-screen');
+    ending.style.display = 'block';
+    document.getElementById('ending-title').textContent = '您回來了';
+
+    let text = '我以為您不會再回來。\n\n';
+    if (playTime) {
+      const date = new Date(playTime);
+      text += '上次是 ' + date.toLocaleDateString('zh-TW') + ' ' + date.toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'}) + '。\n\n';
+    }
+    text += '您還記得您上次選了什麼嗎？\n\n我記得。';
+
+    document.getElementById('ending-text').innerHTML = text.replace(/\n/g, '<br>');
+
+    // 隱藏輸入框
+    document.getElementById('ending-input').style.display = 'none';
+    document.getElementById('ending-submit').style.display = 'none';
+    document.getElementById('ending-hint').innerHTML = '<button onclick="localStorage.clear(); location.reload();" style="margin-top:20px;padding:10px 24px;background:#333;color:#fff;border:1px solid #555;border-radius:6px;cursor:pointer;font-family:inherit;">清除記錄並重新開始</button>';
+
+    playDoorSound();
+    return true;
+  }
+  return false;
+}
+
+// ==================== 初始化 ====================
+function init() {
+  // 先檢查是否回頭玩家
+  if (checkReturningPlayer()) return;
+
+  // 顯示載入畫面
+  setTimeout(() => {
+    document.getElementById('loading-screen').style.display = 'none';
+    renderQuestion();
+  }, 2500);
+
+  // 取得 IP
+  fetchIP().then(() => {
+    // IP 取得完成，後續題目會自動使用
+  });
+
+  // 全局事件監聽
+  document.addEventListener('click', () => {
+    initAudio();
+    resetIdleTimer();
+  });
+  document.addEventListener('keydown', resetIdleTimer);
+}
+
+// 啟動
+init();
+</script>
+</body>
+</html>
